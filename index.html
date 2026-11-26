@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FindIt – Campus Lost &amp; Found Portal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Sticky Top Navigation -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#home" class="logo" aria-label="FindIt Home">
+        <span class="logo-mark" aria-hidden="true">F</span>
+        <span class="logo-text">Find<span>It</span></span>
+      </a>
+
+      <button
+        type="button"
+        id="nav-toggle"
+        class="nav-toggle"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="main-nav"
+      >
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+
+      <nav id="main-nav" class="main-nav" aria-label="Main navigation">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#browse" class="nav-link">Browse Items</a>
+        <a href="#report" class="nav-link nav-cta">Report an Item</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. HOME / HERO SECTION -->
+    <section id="home" class="hero-section">
+      <div class="container hero-content">
+        <div class="hero-text">
+          <span class="hero-pill">Campus Lost &amp; Found Portal</span>
+          <h1>Reuniting students with their belongings, fast.</h1>
+          <p class="hero-subtitle">
+            Lost a notebook in the library or found a set of keys near the quad?
+            FindIt connects our campus community so misplaced items get back to
+            their owners safely and quickly.
+          </p>
+
+          <!-- Home Search Bar -->
+          <form id="hero-search-form" class="hero-search" role="search">
+            <label for="hero-search-input" class="sr-only">Search reported items by name</label>
+            <input
+              type="search"
+              id="hero-search-input"
+              placeholder="Search lost or found items (e.g., laptop charger, ID card)..."
+              autocomplete="off"
+            >
+            <button type="submit" class="btn btn-primary">Search</button>
+          </form>
+
+          <!-- Quick Action Buttons -->
+          <div class="hero-actions">
+            <button type="button" id="btn-report-lost" class="btn btn-accent">
+              Report Lost Item
+            </button>
+            <button type="button" id="btn-report-found" class="btn btn-outline-light">
+              Report Found Item
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Statistics Dashboard -->
+        <div class="stats-grid" aria-label="Campus item statistics">
+          <button type="button" class="stat-card" data-stat-filter="lost" title="View active lost items">
+            <span class="stat-label">Lost Items</span>
+            <strong id="stat-lost" class="stat-value">0</strong>
+            <span class="stat-hint">Currently missing</span>
+          </button>
+
+          <button type="button" class="stat-card" data-stat-filter="found" title="View active found items">
+            <span class="stat-label">Found Items</span>
+            <strong id="stat-found" class="stat-value">0</strong>
+            <span class="stat-hint">Waiting to be claimed</span>
+          </button>
+
+          <button type="button" class="stat-card stat-card-resolved" data-stat-filter="resolved" title="View resolved items">
+            <span class="stat-label">Resolved Items</span>
+            <strong id="stat-resolved" class="stat-value">0</strong>
+            <span class="stat-hint">Returned to owners</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. BROWSE ITEMS SECTION -->
+    <section id="browse" class="section browse-section">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2>Browse Reported Items</h2>
+            <p class="section-subtitle">
+              Search by item name or filter by status and category to check recent campus reports.
+            </p>
+          </div>
+          <p id="results-count" class="results-count" aria-live="polite">Showing 0 items</p>
+        </div>
+
+        <!-- Search & Filter Toolbar -->
+        <div class="filter-bar">
+          <div class="filter-group filter-search">
+            <label for="browse-search">Search by Item Name</label>
+            <input
+              type="search"
+              id="browse-search"
+              placeholder="Type an item name..."
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-status">Status</label>
+            <select id="filter-status">
+              <option value="all">All Statuses</option>
+              <option value="lost">Lost</option>
+              <option value="found">Found</option>
+              <option value="resolved">Resolved</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <label for="filter-category">Category</label>
+            <select id="filter-category">
+              <option value="all">All Categories</option>
+              <option value="Electronics">Electronics</option>
+              <option value="ID &amp; Cards">ID &amp; Cards</option>
+              <option value="Books &amp; Notes">Books &amp; Notes</option>
+              <option value="Bags &amp; Accessories">Bags &amp; Accessories</option>
+              <option value="Keys &amp; Wallets">Keys &amp; Wallets</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="filter-actions">
+            <button type="button" id="clear-filters-btn" class="btn btn-secondary">
+              Reset Filters
+            </button>
+          </div>
+        </div>
+
+        <!-- Item Cards Grid -->
+        <div id="items-grid" class="items-grid" aria-live="polite"></div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state hidden">
+          <div class="empty-icon" aria-hidden="true">?</div>
+          <h3>No matching items found</h3>
+          <p>
+            Try adjusting your search keywords or clearing your active status and category filters.
+          </p>
+          <button type="button" id="empty-reset-btn" class="btn btn-primary">
+            Show All Items
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. REPORT AN ITEM SECTION -->
+    <section id="report" class="section report-section">
+      <div class="container">
+        <div class="report-layout">
+          <div class="report-intro">
+            <h2>Report a Lost or Found Item</h2>
+            <p>
+              Fill out the form with clear details so someone on campus can identify
+              and claim or return the item. Your report is saved automatically in your
+              browser and appears immediately in the portal.
+            </p>
+
+            <div class="tips-card">
+              <h3>Helpful Reporting Tips</h3>
+              <ul>
+                <li>Include specific colors, brands, or unique stickers or marks.</li>
+                <li>Mention the exact building, room, or walkway where it was last seen.</li>
+                <li>Provide a campus email or phone number where you can be reached.</li>
+              </ul>
+            </div>
+          </div>
+
+          <form id="report-form" class="report-form" novalidate>
+            <!-- Success Banner -->
+            <div id="form-success" class="alert alert-success hidden" role="status">
+              <div>
+                <strong>Report submitted!</strong>
+                <span id="form-success-text">Your item has been added to FindIt.</span>
+              </div>
+              <button type="button" id="view-reported-btn" class="btn btn-small btn-primary">
+                Browse Items
+              </button>
+            </div>
+
+            <!-- Lost / Found Toggle -->
+            <div class="form-field">
+              <span class="field-label">Report Type <span class="required">*</span></span>
+              <div class="status-radio-group" role="radiogroup" aria-label="Item status">
+                <label class="radio-pill">
+                  <input type="radio" name="status" value="lost" checked>
+                  <span>Lost Item</span>
+                </label>
+                <label class="radio-pill">
+                  <input type="radio" name="status" value="found">
+                  <span>Found Item</span>
+                </label>
+              </div>
+              <small class="error-text" id="error-status"></small>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="item-name">Item Name <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="item-name"
+                  name="name"
+                  maxlength="80"
+                  placeholder="e.g., Silver USB-C Laptop Charger"
+                  required
+                >
+                <small class="error-text" id="error-name"></small>
+              </div>
+
+              <div class="form-field">
+                <label for="item-category">Category <span class="required">*</span></label>
+                <select id="item-category" name="category" required>
+                  <option value="">Select a category</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="ID &amp; Cards">ID &amp; Cards</option>
+                  <option value="Books &amp; Notes">Books &amp; Notes</option>
+                  <option value="Bags &amp; Accessories">Bags &amp; Accessories</option>
+                  <option value="Keys &amp; Wallets">Keys &amp; Wallets</option>
+                  <option value="Other">Other</option>
+                </select>
+                <small class="error-text" id="error-category"></small>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field">
+                <label for="item-location">Campus Location <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="item-location"
+                  name="location"
+                  maxlength="100"
+                  placeholder="e.g., Science Hall, Room 204"
+                  required
+                >
+                <small class="error-text" id="error-location"></small>
+              </div>
+
+              <div class="form-field">
+                <label for="item-date">Date Lost / Found <span class="required">*</span></label>
+                <input type="date" id="item-date" name="date" required>
+                <small class="error-text" id="error-date"></small>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="item-description">Description <span class="required">*</span></label>
+              <textarea
+                id="item-description"
+                name="description"
+                rows="4"
+                maxlength="500"
+                placeholder="Describe color, brand, distinguishing features, or where it was left..."
+                required
+              ></textarea>
+              <small class="error-text" id="error-description"></small>
+            </div>
+
+            <div class="form-field">
+              <label for="item-contact">Contact Information <span class="required">*</span></label>
+              <input
+                type="text"
+                id="item-contact"
+                name="contact"
+                maxlength="100"
+                placeholder="e.g., alex.chen@campus.edu or (555) 234-5678"
+                required
+              >
+              <small class="error-text" id="error-contact"></small>
+            </div>
+
+            <div class="form-submit-row">
+              <button type="submit" class="btn btn-accent btn-large">Submit Report</button>
+              <button type="reset" id="form-reset-btn" class="btn btn-secondary">Clear Form</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <strong>FindIt</strong> – Campus Lost &amp; Found Portal
+      </div>
+      <div class="footer-links">
+        <a href="#home">Home</a>
+        <a href="#browse">Browse Items</a>
+        <a href="#report">Report Item</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 4. ITEM DETAILS & CONFIRMATION MODAL -->
+  <div
+    id="item-modal"
+    class="modal-backdrop hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+  >
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-badges">
+          <span id="modal-status-badge" class="badge"></span>
+          <span id="modal-category-badge" class="category-chip"></span>
+        </div>
+        <button type="button" id="modal-close-btn" class="modal-close" aria-label="Close item details">
+          &times;
+        </button>
+      </div>
+
+      <h2 id="modal-title" class="modal-title"></h2>
+      <p id="modal-description" class="modal-description"></p>
+
+      <dl class="modal-details-list">
+        <div class="detail-row">
+          <dt>Location</dt>
+          <dd id="modal-location"></dd>
+        </div>
+        <div class="detail-row">
+          <dt>Date</dt>
+          <dd id="modal-date"></dd>
+        </div>
+        <div class="detail-row detail-contact">
+          <dt>Contact Info</dt>
+          <dd id="modal-contact"></dd>
+        </div>
+      </dl>
+
+      <!-- Confirmation Prompt (hidden until user clicks Resolve or Delete) -->
+      <div id="modal-confirm-box" class="confirm-box hidden" role="alert">
+        <p id="confirm-message"></p>
+        <div class="confirm-actions">
+          <button type="button" id="confirm-yes-btn" class="btn btn-accent btn-small">Confirm</button>
+          <button type="button" id="confirm-no-btn" class="btn btn-secondary btn-small">Cancel</button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" id="modal-resolve-btn" class="btn btn-primary">
+          Mark as Resolved
+        </button>
+        <button type="button" id="modal-delete-btn" class="btn btn-danger-outline">
+          Delete Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
